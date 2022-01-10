@@ -161,7 +161,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'modification'):
             <input type="number" name="quantite" value="<?= $quantite ?>"><br>
 
             <label class="text-center"> Reference  </label>
-            <input type="text" name="ref" value="<?= $quantite ?>"><br>
+            <input type="text" name="ref" value="<?= $reference ?>"><br>
 
            
             <label class="text-center" > Bouton de validation </label>
@@ -235,7 +235,6 @@ if ($_POST) {
         ");
         header('location:main.php');
         }
-    
 echo $content; //Affichage de content 
 
 }
