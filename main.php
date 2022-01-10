@@ -3,7 +3,7 @@
 $pdo = new PDO('mysql:host=localhost; dbname=brief-vapo','root', '', array(PDO::ATTR_ERRMODE=>PDO::ERRMODE_WARNING, PDO::MYSQL_ATTR_INIT_COMMAND=>"SET NAMES UTF8"));
 $content = '';
 $error = '';
-$pdostatement = $pdo->query("SELECT id, nom, typeobj, info, prix_achat, prix_vente,quantite ,reference FROM produit ORDER BY typeobj DESC ");
+$pdostatement = $pdo->query("SELECT * FROM produit ORDER BY typeobj DESC ");
 
 function debug($arg){
     echo "<div style='background:#fda500; z-index:1000; padding:15px;>";
@@ -26,7 +26,6 @@ function execute_requete($req){
     return $pdostatement;
 }
 
-
 ?>
 
 <!DOCTYPE html>
@@ -40,14 +39,14 @@ function execute_requete($req){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </head>
 <body>
+
 <?php 
 
-
-// commande supprimé 
+// Commande supprimé 
 
 if(isset($_GET['action'])&& $_GET['action'] == 'suppression'){ 
-
     execute_requete(" DELETE FROM produit WHERE id = '$_GET[id]' ");
+    header('location:main.php');
 }
 
 //Commande modifier 
@@ -61,7 +60,6 @@ echo "<tr>";
     $nombre_colonne = $pdostatement->columnCount();
     for($i = 0; $i < $nombre_colonne; $i++){
         $info_colonne = $pdostatement->getColumnMeta($i);
-
             echo  "<th> $info_colonne[name]</th>";
     }
     echo  "<th> Suppression </th>";
@@ -71,20 +69,18 @@ while($ligne = $pdostatement->fetch(PDO:: FETCH_ASSOC)){
             
     echo  "<tr>";
         foreach($ligne as $indice => $valeur){
-            
             echo "<td> $valeur </td>";
-            
         }
     
         echo  '<td class="text-center">
                     <a href="?action=suppression&id='. $ligne['id'] .'" onclick="return( confirm( \' Voulez vous supprimer ce user : ' . $ligne['nom'] . ' \' ) )" >
-                        <i class="far fa-trash-alt"></i> 
+                        <i class="far fa-trash-alt">Supprimer ?</i> 
                     </a>
                 </td>';
 
         echo  '<td class="text-center">
                 <a href="?action=modification&id='. $ligne['id'].' ">
-                    <i class="far fa-edit"></i> 
+                    <i class="far fa-edit"> Modifier ?</i> 
                 </a>
             </td>';
         
@@ -94,23 +90,24 @@ while($ligne = $pdostatement->fetch(PDO:: FETCH_ASSOC)){
 
 echo  "</table>";
 
+///////////////////////////////////////////////FIN TABLEAU
 
 //ICI UN BOUTON "AJOUTER" QUI PERMETTRA DE DEBUTER L'AJOUT 
 
 echo  ' <div class="text-center">
-                            <a href="?action=ajout ">
+                            <a href="?action=ajout">
                             <i class="fas fa-plus"> Ajouter un produit</i> 
                             </a>
                        </div> ';
 
 
-///////////////////////////////////////////////FIN TABLEAU
+
 
 
 // Commande modifier 
 
 if(isset($_GET['action']) && $_GET['action'] == 'modification'): 
-    $recup =  execute_requete ("SELECT nom,info,typeobj,prix_achat,prix_vente,quantite,reference FROM produit WHERE id = $_GET[id]");
+    $recup =  execute_requete ("SELECT * FROM produit WHERE id = $_GET[id]");
     $amodifier = $recup->fetch(PDO:: FETCH_ASSOC); 
     $nom = $amodifier["nom"];
     $info = $amodifier["info"];
@@ -138,8 +135,6 @@ if(isset($_GET['action']) && $_GET['action'] == 'modification'):
     </a>
     </div> ';
 ?>
-    
-
     <form method="post">
     <div class='d-flex justify-content-center'>
         <div class='d-flex flex-column bd-highlight mb-3'>
@@ -176,11 +171,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'modification'):
 
 <?php
 endif;
-?>
 
-
-
-<?php
 // Debut de l'ajout des données dans la PDO, via la methode post
 if(isset($_GET['action']) && $_GET['action'] == 'ajout'):
 
@@ -224,12 +215,13 @@ if ($_POST) {
 
         $error .= "<div class='alert alert-danger'> Reference indisponible </div>";
     }
+
     if ($_POST["nom"]) {
         $nom = $_POST["nom"];
     } else {
         $nom = "";
     }
-    
+    echo $error; //affich un message d'erreur si necessaire
     if (empty($error)) {
         execute_requete("INSERT INTO produit (nom,info,typeobj,prix_achat,prix_vente,quantite,reference ) 
         VALUES ( 
@@ -241,23 +233,14 @@ if ($_POST) {
             '$_POST[quantite]',
             '$_POST[ref]' )
         ");
-        $content .= '
-        <div class="d-flex justify-content-center">
-            <div class="alert alert-success d-flex align-items-center" role="alert">
-                    <div>
-                        <p>Produit ajouté</p>
-                    </div>
-            </div>
-        </div>
-        ';
-
+        header('location:main.php');
         }
     
 echo $content; //Affichage de content 
-header('location:main.php');
+
 }
 
-echo $error; //affich un message d'erreur si necessaire
+
 
 ?>
 
